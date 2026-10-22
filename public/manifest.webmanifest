@@ -1,0 +1,19 @@
+{
+  "name": "情侣课表",
+  "short_name": "情侣课表",
+  "description": "大学情侣课表 - 支持教务系统导入、双人课表叠加、空闲时间推荐",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff0f5",
+  "theme_color": "#ff5a8a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

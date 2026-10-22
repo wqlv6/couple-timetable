@@ -1,0 +1,10 @@
+{
+  "name": "couple-timetable-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "正方教务系统课表抓取代理（可选，因教务系统有 CORS 限制）",
+  "scripts": {
+    "test": "node test.mjs",
+    "start": "node index.mjs"
+  }
+}
