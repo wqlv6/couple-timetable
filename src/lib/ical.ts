@@ -1,5 +1,5 @@
 import type { AppState, Course } from '../types';
-import { PERIOD_TIMES } from './model';
+import { DEFAULT_PERIOD_TIMES } from './model';
 
 /**
  * 导出 iCal（.ics），可导入系统日历（借鉴 NUAA_ClassSchedule 的思路）。
@@ -23,9 +23,11 @@ export function exportICS(state: AppState, personId?: string): string | null {
     const weeks = c.weeks.length ? c.weeks : Array.from({ length: 25 }, (_, i) => i + 1);
     // 该课程第 1 个上课周对应的周一日期
     const baseDate = addDays(start, (weeks[0] - 1) * 7 + (c.dayOfWeek - 1));
-    const [sh, sm] = PERIOD_TIMES[c.startPeriod - 1] ? PERIOD_TIMES[c.startPeriod - 1][0].split(':') : ['08', '00'];
-    const endTime = PERIOD_TIMES[Math.min(c.endPeriod - 1, PERIOD_TIMES.length - 1)] || ['08:00', '08:45'];
-    const [, em] = endTime[1].split(':');
+    const times = state.periodTimes?.[c.personId] ?? DEFAULT_PERIOD_TIMES;
+    const startTime = times[c.startPeriod - 1] ?? ['08:00', '08:45'];
+    const endTime = times[Math.min(c.endPeriod - 1, times.length - 1)] ?? ['08:00', '08:45'];
+    const [sh, sm] = (startTime[0] || '08:00').split(':');
+    const [, em] = (endTime[1] || '08:45').split(':');
     const dtstart = formatDT(baseDate, sh, sm);
     const dtend = formatDT(baseDate, sh, em);
 

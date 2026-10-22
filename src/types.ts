@@ -1,5 +1,8 @@
 export type PersonId = 'me' | 'partner';
 
+/** 一节课的起止时间，如 ['08:00', '08:45'] */
+export type PeriodTime = [string, string];
+
 export interface Person {
   id: PersonId;
   name: string;
@@ -25,4 +28,5 @@ export interface AppState {
   courses: Course[];
   periodCount: number;
   startDate: string; // 第 1 周周一的日期（YYYY-MM-DD），为空则未设置
+  periodTimes: Record<PersonId, PeriodTime[]>; // 双方各自的每节起止时间（下标 0 = 第1节）
 }

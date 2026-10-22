@@ -34,7 +34,7 @@ export function buildBookmarklet(appUrl: string): string {
     'try{',
     "var h=Array.prototype.map.call(document.querySelectorAll('script'),function(s){return s.textContent||'';}).join(String.fromCharCode(10));",
     "if(h.indexOf('TaskActivity')<0){h=document.documentElement.outerHTML;}",
-    "if(h.indexOf('TaskActivity')<0){alert('未识别到课表：请先在教务系统里打开「课表」页面，再点这个书签。');return;}",
+    "if(h.indexOf('TaskActivity')<0&&h.indexOf('kbtable')<0&&h.indexOf('kbcontent')<0){alert('未识别到课表：请先在教务系统里打开「课表」页面，再点这个书签（支持正方/强智教务）。');return;}",
     'var b=new TextEncoder().encode(h);',
     "var s='';",
     'for(var i=0;i<b.length;i++){s+=String.fromCharCode(b[i]);}',

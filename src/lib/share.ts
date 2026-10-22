@@ -1,4 +1,5 @@
 import type { AppState, PersonId } from '../types';
+import { DEFAULT_PERIOD_TIMES, normalizePeriodTimes } from './model';
 
 /** 把完整状态编码为 URL-safe 的分享码（base64url） */
 export function encodeShare(state: AppState): string {
@@ -58,11 +59,17 @@ export function mergeSharedState(mine: AppState, theirs: AppState): AppState {
     return p;
   });
 
+  const theirTimes = theirs.periodTimes?.me;
+
   return {
     ...mine,
     people,
     courses: [...myMe, ...theirMe],
     periodCount: Math.max(mine.periodCount, theirs.periodCount),
     startDate: mine.startDate || theirs.startDate,
+    periodTimes: {
+      me: mine.periodTimes?.me ?? DEFAULT_PERIOD_TIMES,
+      partner: normalizePeriodTimes(theirTimes),
+    },
   };
 }

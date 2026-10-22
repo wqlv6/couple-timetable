@@ -519,3 +519,51 @@ button {
   line-height: 1.5;
 }
 
+/* 上课时间编辑 */
+.period-times {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.period-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.period-num {
+  width: 52px;
+  flex: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.period-row input[type='time'] {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--text);
+}
+.period-dash {
+  color: var(--muted);
+}
+
+/* 课表左侧第二行时间（双方不同时显示 Ta 的） */
+.p-time-2 {
+  font-size: 9px;
+}
+
+/* 课程卡片上的时间 */
+.c-time {
+  font-size: 9px;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+

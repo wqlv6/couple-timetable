@@ -1,5 +1,5 @@
-import type { AppState } from '../types';
-import { DEFAULT_PERIODS, PERSON_DEFAULTS } from './model';
+import type { AppState, PersonId, PeriodTime } from '../types';
+import { DEFAULT_PERIODS, PERSON_DEFAULTS, defaultPeriodTimes, normalizePeriodTimes } from './model';
 
 const KEY = 'couple-timetable:v1';
 
@@ -9,6 +9,10 @@ export function defaultState(): AppState {
     courses: [],
     periodCount: DEFAULT_PERIODS,
     startDate: '',
+    periodTimes: {
+      me: defaultPeriodTimes(),
+      partner: defaultPeriodTimes(),
+    },
   };
 }
 
@@ -16,7 +20,9 @@ export function loadState(): AppState {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return defaultState();
-    const parsed = JSON.parse(raw) as Partial<AppState>;
+    const parsed = JSON.parse(raw) as Partial<AppState> & {
+      periodTimes?: Partial<Record<PersonId, PeriodTime[]>>;
+    };
     const base = defaultState();
     return {
       ...base,
@@ -28,6 +34,10 @@ export function loadState(): AppState {
       courses: Array.isArray(parsed.courses) ? parsed.courses : [],
       periodCount: typeof parsed.periodCount === 'number' ? parsed.periodCount : DEFAULT_PERIODS,
       startDate: parsed.startDate || '',
+      periodTimes: {
+        me: normalizePeriodTimes(parsed.periodTimes?.me),
+        partner: normalizePeriodTimes(parsed.periodTimes?.partner),
+      },
     };
   } catch {
     return defaultState();

@@ -1,5 +1,5 @@
 import type { AppState } from '../types';
-import { DAY_LABELS, PERIOD_TIMES } from '../lib/model';
+import { DAY_LABELS } from '../lib/model';
 import { commonFreeSlots, mergeSlots } from '../lib/freeTime';
 
 interface Props {
@@ -14,6 +14,7 @@ export default function FreeTimePanel({ state, week, onWeekChange }: Props) {
   for (const s of slots) byDay[s.dayOfWeek].push(s.period);
 
   const total = slots.length;
+  const times = state.periodTimes?.me ?? [];
 
   return (
     <div className="panel">
@@ -43,7 +44,7 @@ export default function FreeTimePanel({ state, week, onWeekChange }: Props) {
                 {ranges.length ? (
                   ranges.map(([s, e]) => (
                     <span className="free-chip" key={`${s}-${e}`}>
-                      {PERIOD_TIMES[s - 1]?.[0]} – {PERIOD_TIMES[e - 1]?.[1]}
+                      {times[s - 1]?.[0] || '--:--'} – {times[e - 1]?.[1] || '--:--'}
                       <em>第{s === e ? s : `${s}–${e}`}节</em>
                     </span>
                   ))

@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
-import type { AppState, Course, PersonId } from '../types';
+import type { AppState, Course, PersonId, PeriodTime } from '../types';
+import { defaultPeriodTimes } from '../lib/model';
 import { exportCSV, parseCSV } from '../lib/csv';
 import { exportICS } from '../lib/ical';
-import { parseZhengfangHtml } from '../lib/zhengfang';
+import { parseScheduleHtml } from '../lib/schedule';
 import { buildBookmarklet } from '../lib/bookmarklet';
 import { decodeShare, encodeShare, mergeSharedState, shareLink } from '../lib/share';
 import { defaultState } from '../lib/storage';
@@ -19,12 +20,27 @@ export default function SettingsPanel({ state, onStateChange }: Props) {
   const [shareCode, setShareCode] = useState('');
   const [bmCode, setBmCode] = useState('');
   const [msg, setMsg] = useState('');
+  const [periodEditPerson, setPeriodEditPerson] = useState<PersonId>('me');
   const fileRef = useRef<HTMLInputElement>(null);
 
   function updatePerson(id: PersonId, patch: Partial<{ name: string; color: string }>) {
     onStateChange({
       ...state,
       people: state.people.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    });
+  }
+
+  function updatePeriodTime(personId: PersonId, period: number, idx: 0 | 1, value: string) {
+    const personTimes = state.periodTimes[personId] || defaultPeriodTimes();
+    const next = personTimes.map((pair, i) => {
+      if (i !== period - 1) return pair;
+      const np: PeriodTime = [...pair];
+      np[idx] = value;
+      return np;
+    });
+    onStateChange({
+      ...state,
+      periodTimes: { ...state.periodTimes, [personId]: next },
     });
   }
 
@@ -154,6 +170,45 @@ export default function SettingsPanel({ state, onStateChange }: Props) {
       </section>
 
       <section className="section">
+        <h3>🕐 上课时间</h3>
+        <p className="hint">每节课的起止时间，双方可以各自设置、互不影响。</p>
+        <div className="seg">
+          {state.people.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={`seg-btn ${periodEditPerson === p.id ? 'active' : ''}`}
+              style={periodEditPerson === p.id ? { background: p.color, borderColor: p.color } : undefined}
+              onClick={() => setPeriodEditPerson(p.id)}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+        <div className="period-times">
+          {Array.from({ length: state.periodCount }, (_, i) => i + 1).map((p) => {
+            const pair = (state.periodTimes[periodEditPerson] || [])[p - 1];
+            return (
+              <div className="period-row" key={p}>
+                <span className="period-num">第{p}节</span>
+                <input
+                  type="time"
+                  value={pair?.[0] || ''}
+                  onChange={(e) => updatePeriodTime(periodEditPerson, p, 0, e.target.value)}
+                />
+                <span className="period-dash">—</span>
+                <input
+                  type="time"
+                  value={pair?.[1] || ''}
+                  onChange={(e) => updatePeriodTime(periodEditPerson, p, 1, e.target.value)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="section">
         <h3>🔖 教务系统一键抓取（推荐）</h3>
         <p className="hint">不用复制源码：登录教务后，在课表页点一下书签，课表自动带回本 App。</p>
         <ol className="steps">
@@ -229,7 +284,7 @@ export default function SettingsPanel({ state, onStateChange }: Props) {
         </div>
 
         <div className="field">
-          <label>正方教务系统课表源码（粘贴页面源码）</label>
+          <label>教务系统课表源码（粘贴页面源码，自动识别正方/强智）</label>
           <textarea
             className="textarea"
             rows={4}
@@ -240,13 +295,13 @@ export default function SettingsPanel({ state, onStateChange }: Props) {
           <button
             className="btn"
             onClick={() => {
-              addCourses(parseZhengfangHtml(zfText, importPerson));
+              addCourses(parseScheduleHtml(zfText, importPerson));
               setZfText('');
             }}
           >
-            解析正方教务源码
+            解析教务源码
           </button>
-          <small>参考 miaotony/NUAA_ClassSchedule 的 TaskActivity 解析思路</small>
+          <small>支持正方（TaskActivity）与强智（kbtable/kbcontent）两种教务系统</small>
         </div>
 
         <div className="field">

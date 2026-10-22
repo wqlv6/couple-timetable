@@ -1,5 +1,5 @@
 import type { AppState, Course, PersonId } from '../types';
-import { DAY_LABELS, PERIOD_TIMES, todayDayOfWeek } from '../lib/model';
+import { DAY_LABELS, todayDayOfWeek } from '../lib/model';
 
 interface Props {
   state: AppState;
@@ -66,12 +66,22 @@ export default function TimetableGrid({ state, week, onAdd, onEdit }: Props) {
         </div>
 
         <div className="tt-periods">
-          {Array.from({ length: state.periodCount }, (_, i) => i + 1).map((p) => (
-            <div className="tt-period" key={p}>
-              <span className="p-num">{p}</span>
-              <span className="p-time">{PERIOD_TIMES[p - 1]?.[0]}</span>
-            </div>
-          ))}
+          {Array.from({ length: state.periodCount }, (_, i) => i + 1).map((p) => {
+            const meStart = state.periodTimes.me[p - 1]?.[0] || '--:--';
+            const partnerStart = state.periodTimes.partner[p - 1]?.[0] || '--:--';
+            const partnerColor = state.people.find((x) => x.id === 'partner')?.color;
+            return (
+              <div className="tt-period" key={p}>
+                <span className="p-num">{p}</span>
+                <span className="p-time">{meStart}</span>
+                {partnerStart !== meStart && (
+                  <span className="p-time p-time-2" style={{ color: partnerColor }}>
+                    {partnerStart}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="tt-canvas" style={{ height: state.periodCount * ROW_H }}>
@@ -92,16 +102,21 @@ export default function TimetableGrid({ state, week, onAdd, onEdit }: Props) {
               const height = `calc(${course.endPeriod - course.startPeriod + 1} * var(--row-h) - 3px)`;
               const left = `calc(${d - 1} * (100% / 7) + ${col} * (100% / 7 / ${maxTracks}))`;
               const width = `calc(100% / 7 / ${maxTracks} - 3px)`;
+              const times = state.periodTimes[course.personId] ?? [];
+              const start = times[course.startPeriod - 1]?.[0];
+              const end = times[course.endPeriod - 1]?.[1];
+              const timeText = start && end ? `${start}–${end}` : '';
               return (
                 <button
                   key={course.id}
                   className={`tt-course ${active ? '' : 'inactive'}`}
                   style={{ top, height, left, width, background: color }}
                   onClick={() => onEdit(course)}
-                  title={`${course.name} · ${course.teacher || '无教师'} · ${course.location || '无地点'}`}
+                  title={`${course.name} · ${course.teacher || '无教师'} · ${course.location || '无地点'}${timeText ? ` · ${timeText}` : ''}`}
                 >
                   <span className="c-name">{course.name}</span>
                   {course.location ? <span className="c-loc">{course.location}</span> : null}
+                  {timeText ? <span className="c-time">{timeText}</span> : null}
                   {!active ? <span className="c-tag">本周无</span> : null}
                 </button>
               );

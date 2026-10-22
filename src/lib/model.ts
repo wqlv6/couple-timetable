@@ -1,4 +1,4 @@
-import type { PersonId } from '../types';
+import type { PersonId, PeriodTime } from '../types';
 
 export const DAY_LABELS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 export const DAY_SHORT = ['一', '二', '三', '四', '五', '六', '日'];
@@ -6,7 +6,7 @@ export const DAY_SHORT = ['一', '二', '三', '四', '五', '六', '日'];
 export const DEFAULT_PERIODS = 12;
 export const MAX_PERIODS = 16;
 
-export const PERIOD_TIMES: [string, string][] = [
+export const PERIOD_TIMES: PeriodTime[] = [
   ['08:00', '08:45'],
   ['08:55', '09:40'],
   ['10:00', '10:45'],
@@ -24,6 +24,26 @@ export const PERIOD_TIMES: [string, string][] = [
   ['10:00', '10:45'],
   ['10:55', '11:40'],
 ];
+
+/** 默认每节起止时间（每个人都从这份拷贝开始，之后可各自修改） */
+export const DEFAULT_PERIOD_TIMES: PeriodTime[] = PERIOD_TIMES.map(([s, e]) => [s, e]);
+
+export function defaultPeriodTimes(): PeriodTime[] {
+  return PERIOD_TIMES.map(([s, e]) => [s, e]);
+}
+
+/** 把任意来源的时间数组规整为完整、合法的 16 节（缺失用默认补） */
+export function normalizePeriodTimes(times: unknown): PeriodTime[] {
+  const def = defaultPeriodTimes();
+  if (!Array.isArray(times)) return def;
+  return def.map((d, i) => {
+    const t = times[i];
+    if (Array.isArray(t) && typeof t[0] === 'string' && typeof t[1] === 'string') {
+      return [t[0], t[1]] as PeriodTime;
+    }
+    return d;
+  });
+}
 
 export const PERSON_DEFAULTS: { id: PersonId; name: string; color: string }[] = [
   { id: 'me', name: '我', color: '#ff5a8a' },

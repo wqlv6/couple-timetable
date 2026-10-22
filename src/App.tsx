@@ -4,7 +4,7 @@ import { loadState, saveState } from './lib/storage';
 import { currentWeek, DAY_LABELS, todayDayOfWeek } from './lib/model';
 import { clearShareFromHash, decodeShare, mergeSharedState, readShareFromHash } from './lib/share';
 import { b64urlDecode, clearRawFromHash, readRawFromHash } from './lib/bookmarklet';
-import { parseZhengfangHtml } from './lib/zhengfang';
+import { parseScheduleHtml } from './lib/schedule';
 import TimetableGrid from './components/TimetableGrid';
 import CourseForm from './components/CourseForm';
 import FreeTimePanel from './components/FreeTimePanel';
@@ -41,7 +41,7 @@ export default function App() {
     if (raw) {
       const html = b64urlDecode(raw);
       if (html) {
-        const courses = parseZhengfangHtml(html, 'me');
+        const courses = parseScheduleHtml(html, 'me');
         if (courses.length) {
           if (window.confirm(`检测到从教务系统抓取的课表，共 ${courses.length} 门课程，是否导入为「我」的课表？`)) {
             setState((prev) => ({ ...prev, courses: [...prev.courses, ...courses] }));
